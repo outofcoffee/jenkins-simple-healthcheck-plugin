@@ -23,6 +23,15 @@ import java.util.List;
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 public class HealthcheckServiceImpl implements HealthcheckService {
+    /**
+     * Perform the actual healthcheck on the {@code target}.
+     *
+     * @param descriptor
+     * @param workspace
+     * @param listener
+     * @param target
+     * @return
+     */
     @Override
     public CheckResult check(SimpleHealthcheckBuilder.DescriptorImpl descriptor, FilePath workspace,
                              TaskListener listener, Endpoint target) {
@@ -44,10 +53,12 @@ public class HealthcheckServiceImpl implements HealthcheckService {
             if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
                 return CheckResult.of(target).success();
             } else {
-                return CheckResult.of(target).fail(String.format("Unexpected HTTP status code: %s", connection.getResponseCode()));
+                throw new RuntimeException(String.format("Unexpected HTTP status code %s returned by %s",
+                        connection.getResponseCode(), target.getUrl()));
             }
 
         } catch (Exception e) {
+            listener.getLogger().println(e.getLocalizedMessage());
             return CheckResult.of(target).fail(e);
 
         } finally {
@@ -57,6 +68,14 @@ public class HealthcheckServiceImpl implements HealthcheckService {
         }
     }
 
+    /**
+     * Write a test report for the given {@code results}.
+     *
+     * @param descriptor
+     * @param workspace
+     * @param listener
+     * @param results
+     */
     @Override
     public void writeReport(SimpleHealthcheckBuilder.DescriptorImpl descriptor, FilePath workspace,
                             TaskListener listener, List<CheckResult> results) {
