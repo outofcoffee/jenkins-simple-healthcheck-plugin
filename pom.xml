@@ -29,7 +29,7 @@
 
   <name>Simple Healthcheck Plugin</name>
   <description>Simple Healthcheck Plugin for Jenkins</description>
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/TODO+Plugin</url>
+  <url>https://github.com/outofcoffee/jenkins-simple-healthcheck-plugin</url>
   <licenses>
     <license>
       <name>MIT License</name>
