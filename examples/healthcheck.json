@@ -14,6 +14,11 @@
 			"name": "example socket 1",
 			"url": "http://example.com",
 			"check": "SOCKET"
+		},
+		{
+			"name": "example socket 2",
+			"url": "http://localhost:30000",
+			"check": "SOCKET"
 		}
 	]
 }
