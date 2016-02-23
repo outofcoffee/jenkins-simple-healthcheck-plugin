@@ -9,6 +9,11 @@
 			"name": "example website 2",
 			"url": "http://localhost:30000",
 			"check": "HTTP_200"
+		},
+		{
+			"name": "example socket 1",
+			"url": "http://example.com",
+			"check": "SOCKET"
 		}
 	]
 }
