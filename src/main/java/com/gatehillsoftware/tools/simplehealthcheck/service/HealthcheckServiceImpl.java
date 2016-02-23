@@ -6,6 +6,8 @@ import com.gatehillsoftware.tools.simplehealthcheck.model.input.Endpoint;
 import com.gatehillsoftware.tools.simplehealthcheck.model.output.TestCase;
 import com.gatehillsoftware.tools.simplehealthcheck.model.output.TestCaseFailure;
 import com.gatehillsoftware.tools.simplehealthcheck.model.output.TestSuite;
+import com.gatehillsoftware.tools.simplehealthcheck.service.check.CheckStrategy;
+import com.gatehillsoftware.tools.simplehealthcheck.service.check.CheckStrategyFactory;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import hudson.FilePath;
@@ -14,7 +16,6 @@ import hudson.model.TaskListener;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -36,36 +37,10 @@ public class HealthcheckServiceImpl implements HealthcheckService {
     public CheckResult check(SimpleHealthcheckBuilder.DescriptorImpl descriptor, FilePath workspace,
                              TaskListener listener, Endpoint target) {
 
-        listener.getLogger().println(String.format("Checking %s with timeout of %s ms...",
-                target.getName(), descriptor.getTimeout()));
+        final CheckStrategyFactory checkStrategyFactory = ServiceFactory.getInstance(CheckStrategyFactory.class);
+        final CheckStrategy strategy = checkStrategyFactory.get(target.getCheck());
 
-        HttpURLConnection connection = null;
-        try {
-            connection = (HttpURLConnection) new URL(target.getUrl()).openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(descriptor.getTimeout());
-            connection.setReadTimeout(descriptor.getTimeout());
-            connection.connect();
-
-            listener.getLogger().println(String.format("HTTP %s status code returned by %s",
-                    connection.getResponseCode(), target.getUrl()));
-
-            if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
-                return CheckResult.of(target).success();
-            } else {
-                throw new RuntimeException(String.format("Unexpected HTTP status code %s returned by %s",
-                        connection.getResponseCode(), target.getUrl()));
-            }
-
-        } catch (Exception e) {
-            listener.getLogger().println(e.getLocalizedMessage());
-            return CheckResult.of(target).fail(e);
-
-        } finally {
-            if (null != connection) {
-                connection.disconnect();
-            }
-        }
+        return strategy.check(descriptor, workspace, listener, target);
     }
 
     /**
@@ -145,10 +120,7 @@ public class HealthcheckServiceImpl implements HealthcheckService {
     private String getClassName(String url) throws MalformedURLException {
         try {
             final String host = new URL(url).getHost();
-            final String[] splitHosts = host.split("\\.");
-
-            return Joiner.on(".").join(
-                    Lists.reverse(Lists.newArrayList(splitHosts)).toArray(new String[splitHosts.length]));
+            return Joiner.on(".").join(Lists.reverse(Lists.newArrayList(host.split("\\."))));
 
         } catch (MalformedURLException e) {
             return "";
