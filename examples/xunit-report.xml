@@ -1,16 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites disabled="" errors="" failures="" name="" tests="" time="">
-    <testsuite disabled="" errors="" failures="" hostname="" id=""
-               name="" package="" skipped="" tests="" time="" timestamp="">
-        <properties>
-            <property name="" value=""/>
-            <property name="" value=""/>
-        </properties>
-        <testcase assertions="" classname="" name="" status="" time="">
-            <error message="" type=""/>
-            <failure message="" type=""/>
-            <system-out/>
-            <system-err/>
-        </testcase>
-    </testsuite>
-</testsuites>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<testsuite tests="2">
+    <testcase classname="com.example" name="example website 1"/>
+    <testcase classname="localhost" name="example website 2">
+        <failure message="Exception: Connection refused"/>
+    </testcase>
+</testsuite>
